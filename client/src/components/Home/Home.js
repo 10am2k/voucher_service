@@ -3,7 +3,7 @@ import { Redirect, withRouter } from 'react-router-dom';
 import NavBar from "./Navbar";
 
 
-function Home(token, logout) {
+function Home({token, logout,alertstatus}) {
 
 
     return (
@@ -11,7 +11,7 @@ function Home(token, logout) {
             <NavBar token={token} logout={logout} />
             <header>Voucher Service System</header>
             <h1>This is the home page</h1>
-
+        
         </div>
     );
 }

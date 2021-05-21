@@ -49,6 +49,7 @@ function App() {
     if (JSON.stringify(user) != JSON.stringify({})) {
       setUser({});
     }
+    
 
   });
 
@@ -91,25 +92,25 @@ function App() {
     <Router>
 
       <Route exact path="/">
-        <Home token={token} logout={logout()} />
+        <Home token={token} logout={logout} />
       </Route>
       <Route path="/login">
-        <LoginForm storeToken={storeToken}></LoginForm>
+        <LoginForm storeToken={storeToken} token={token} logout={logout} ></LoginForm>
       </Route>
 
-      <Route path="/signup"><CreateAccount></CreateAccount></Route>
+      <Route path="/signup"><CreateAccount storeToken={storeToken} token={token} logout={logout}></CreateAccount></Route>
 
       <Route path="/billerInfo">
 
-        {token !== "" ? <BillerInfoForm user={user} token={token}></BillerInfoForm> :
-          <div>please sign in:
-             <Link to="/login">SignIn</Link></div>}
+        {token !== "" ? <BillerInfoForm user={user} token={token} logout={logout}></BillerInfoForm> :
+          <LoginForm storeToken={storeToken} token={token} logout={logout} ></LoginForm>}
 
       </Route>
 
       <Route path="/personalInfo">
 
-        <PersonalInfoForm user={user} token={token}></PersonalInfoForm>
+        {token !== "" ? <PersonalInfoForm user={user} token={token} storeToken={storeToken} logout={logout}></PersonalInfoForm> :
+          <LoginForm storeToken={storeToken} token={token} logout={logout} ></LoginForm>}
       </Route>
 
     </Router>

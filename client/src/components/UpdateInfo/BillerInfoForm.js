@@ -9,6 +9,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/EditOutlined";
 import DoneIcon from "@material-ui/icons/DoneAllTwoTone";
 import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
+import Alert from "../Alert/Alert";
 
 
 import {
@@ -83,7 +84,7 @@ const CustomTableCell = ({ row, name, onChange }) => {
 
 
 
-function BillerInfoForm({ token, user }) {
+function BillerInfoForm({ token, user ,logout}) {
 
 
 
@@ -151,7 +152,13 @@ function BillerInfoForm({ token, user }) {
         const payload = { id, billerFirstName, billerLastName, billerEmail };
         console.log("payload:", payload);
         Axios.post('api/user/updateBillerInfo', payload)
+            .then((res)=> {
+                setStatusBase({ msg: "Update biller info successfully!", key: Math.random() });
+                
+                console.error(res);
+            })
             .catch((err) => {
+                setStatusBase({ msg: "Update biller info failed", key: Math.random() });
                 console.error(err);
             })
         setRows([createData(billerFirstName, billerLastName, billerEmail)])
@@ -162,7 +169,7 @@ function BillerInfoForm({ token, user }) {
     // Below is from William
 
     const classes = useStyles();
-
+    const [astatus, setStatusBase] = useState("");
     const onToggleEditMode = id => {
         setRows(state => {
             return rows.map(row => {
@@ -208,7 +215,7 @@ function BillerInfoForm({ token, user }) {
 
     return (
         <div>
-            <NavBar />
+            <NavBar token={token} logout={logout}/>
             <Card>
                 <CardContent>
                     <Typography variant="h6">
@@ -275,9 +282,9 @@ function BillerInfoForm({ token, user }) {
 
 
 
-
+                                                
                 </CardContent>
-
+                {astatus ? <Alert key={astatus.key} message={astatus.msg} /> : null}
             </Card>
         </div>
     )

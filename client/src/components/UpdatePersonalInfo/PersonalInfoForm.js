@@ -14,6 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import NavBar from '../Home/Navbar'
 import axios from 'axios';
+import Alert from "../Alert/Alert";
 
 function Copyright() {
   return (
@@ -52,14 +53,14 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-export default function PersonalInfoForm({ token, user, storeToken }) {
+export default function PersonalInfoForm({ token, user, storeToken ,logout}) {
 
   const [oldpassword, setoldPassword] = useState();
   const [newpassword, setnewPassword] = useState('');
   const [fname, setfname] = useState(user.firstName);
   const [lname, setlname] = useState(user.lastName);
   const [phone, setphone] = useState(user.phoneNumber);
-
+  const [astatus, setStatusBase] = useState("");
 
 
 
@@ -87,26 +88,31 @@ export default function PersonalInfoForm({ token, user, storeToken }) {
   const handleClick = () => {
     axios.post('api/user/edituser', { email: user.email, oldpassword: oldpassword, newpassword: newpassword, firstName: fname, lastName: lname, phoneNumber: phone })
       .then((res) => {
+        setStatusBase({ msg: "Personal information edited successful!", key: Math.random() });
         storeToken.call(this, res.data.token);
+        
       }
       )
       .catch(function (error) {
+        setStatusBase({ msg: "Personal information edited failed.", key: Math.random() });
         console.log(error);
+        
       })
   }
 
   const classes = useStyles();
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <NavBar />
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Personal Information
+    <div>
+    <Container component="main" maxWidth="lg">
+          <NavBar token={token} logout={logout}/>
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    Personal Information
         </Typography>
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
@@ -193,6 +199,9 @@ export default function PersonalInfoForm({ token, user, storeToken }) {
       <Box mt={5}>
         <Copyright />
       </Box>
+      
     </Container>
+    {astatus ? <Alert key={astatus.key} message={astatus.msg} /> : null}
+    </div>
   );
 }

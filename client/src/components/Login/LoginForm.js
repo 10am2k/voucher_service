@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
 import NavBar from '../Home/Navbar';
+import Alert from "../Alert/Alert";
 
 import Axios from 'axios';
 import PropTypes from 'prop-types'
@@ -15,10 +16,12 @@ import {
 } from '@material-ui/core'
 
 
-function LoginForm({ storeToken }) {
+function LoginForm({ storeToken,token,logout}) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const [status, setStatusBase] = React.useState("");
 
     const onEmailChange = (e) => {
         setEmail(e.target.value);
@@ -30,13 +33,15 @@ function LoginForm({ storeToken }) {
 
     const onLogin = () => {
         const payload = { email, password };
-
+        
         Axios.post('api/user/login', payload)
             .then((res) => {
                 storeToken.call(this, res.data.token);
-
+                setStatusBase({ msg: "Login successful!", key: Math.random() });
+                setTimeout(()=>{return (<Redirect to="/" />)}, 1500);
             })
             .catch((err) => {
+                setStatusBase({ msg: "Password error or email doesn't exist", key: Math.random() });
                 console.error(err);
             })
 
@@ -45,7 +50,7 @@ function LoginForm({ storeToken }) {
 
     return (
         <div>
-            <NavBar />
+            <NavBar token={token} logout={logout}/>
 
             <Card>
                 <CardContent>
@@ -84,7 +89,7 @@ function LoginForm({ storeToken }) {
                 </Button>
 
                 </CardContent>
-
+                {status ? <Alert key={status.key} message={status.msg} /> : null}
             </Card>
 
         </div>
