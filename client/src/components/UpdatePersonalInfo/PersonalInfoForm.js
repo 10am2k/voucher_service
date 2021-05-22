@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink ,withRouter } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -51,9 +52,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-
-
-export default function PersonalInfoForm({ token, user, storeToken ,logout}) {
+function PersonalInfoForm({ token, user, storeToken ,logout,history}) {
 
   const [oldpassword, setoldPassword] = useState();
   const [newpassword, setnewPassword] = useState('');
@@ -90,7 +89,7 @@ export default function PersonalInfoForm({ token, user, storeToken ,logout}) {
       .then((res) => {
         setStatusBase({ msg: "Personal information edited successful!", key: Math.random() });
         storeToken.call(this, res.data.token);
-        
+        setTimeout(()=>{history.push('/')}, 1000);
       }
       )
       .catch(function (error) {
@@ -185,11 +184,9 @@ export default function PersonalInfoForm({ token, user, storeToken ,logout}) {
             </Grid>
           </Grid>
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
-            className={classes.submit}
             onClick={handleClick}
           >
             Change
@@ -205,3 +202,5 @@ export default function PersonalInfoForm({ token, user, storeToken ,logout}) {
     </div>
   );
 }
+
+export default withRouter(PersonalInfoForm);

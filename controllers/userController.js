@@ -167,6 +167,7 @@ const addUser = (req, res) => {
 
     //check that password is long enough
     if (req.body.password.length < 8) {
+        res.status(400);
         res.send("password too short");
         return;
     }
@@ -197,6 +198,7 @@ const addUser = (req, res) => {
                 if (err.errors) {
                     errmsg = "Signup failed - the email address you provided was invalid"
                 }
+                res.status(400);
                 res.send(errmsg)
             }
 
@@ -252,6 +254,7 @@ const editUser = (req, res) => {
         
             //check that password is long enough
             if (req.body.newpassword.length < 8) {
+                res.status(400);
                 res.send("password too short");
                 return;
             }
@@ -304,6 +307,7 @@ const editUser = (req, res) => {
             return;
         }
         if (err) {
+            res.status(400);
             console.log("Change Personal Information failed failed, something went wrong");
             res.send("Change Personal Information failed failed, something went wrong");
             return;

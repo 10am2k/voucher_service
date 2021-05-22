@@ -84,7 +84,7 @@ const CustomTableCell = ({ row, name, onChange }) => {
 
 
 
-function BillerInfoForm({ token, user ,logout}) {
+function BillerInfoForm({ token, user ,logout,history}) {
 
 
 
@@ -154,7 +154,7 @@ function BillerInfoForm({ token, user ,logout}) {
         Axios.post('api/user/updateBillerInfo', payload)
             .then((res)=> {
                 setStatusBase({ msg: "Update biller info successfully!", key: Math.random() });
-                
+                setTimeout(()=>{history.push('/')}, 1500);
                 console.error(res);
             })
             .catch((err) => {

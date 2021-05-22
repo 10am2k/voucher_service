@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SignUp({ storeToken ,token,logout}) {
+function CreateAccount({ storeToken ,token,logout,history}) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -81,12 +81,13 @@ export default function SignUp({ storeToken ,token,logout}) {
     }
     const handleClick = () => {
         axios.post('api/user/signup', { email: email, password: password, firstName: fname, lastName: lname, phoneNumber: phone })
-            .then(function (response) {
-                storeToken.call(this, response.data.token);
+            .then((response) => {
+                storeToken(response.data.token);
                 setStatusBase({ msg: "Signup successful!", key: Math.random() });
+                setTimeout(()=>{history.push('/')}, 1000);
                 console.log(response);
             })
-            .catch(function (error) {
+            .catch((error) =>{
               setStatusBase({ msg: "Signup failed!", key: Math.random() });
                 console.log(error);
             })
@@ -170,11 +171,10 @@ export default function SignUp({ storeToken ,token,logout}) {
 
                     </Grid>
                     <Button
-                        type="submit"
                         fullWidth
                         variant="contained"
                         color="primary"
-                        className={classes.submit}
+                
                         onClick={handleClick}
                     >
                         Sign Up
@@ -196,3 +196,5 @@ export default function SignUp({ storeToken ,token,logout}) {
         </Container>
     );
 }
+
+export default withRouter(CreateAccount);

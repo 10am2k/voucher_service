@@ -16,8 +16,10 @@ import {
 } from '@material-ui/core'
 
 
-function LoginForm({ storeToken,token,logout}) {
+function LoginForm({ storeToken,token,logout, history}) {
+    
 
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -38,7 +40,7 @@ function LoginForm({ storeToken,token,logout}) {
             .then((res) => {
                 storeToken.call(this, res.data.token);
                 setStatusBase({ msg: "Login successful!", key: Math.random() });
-                setTimeout(()=>{return (<Redirect to="/" />)}, 1500);
+                setTimeout(()=>{history.push('/')}, 1000);
             })
             .catch((err) => {
                 setStatusBase({ msg: "Password error or email doesn't exist", key: Math.random() });
