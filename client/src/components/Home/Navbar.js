@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NavBar({token, logout}) {
+export default function NavBar({admin,token, logout}) {
   const classes = useStyles();
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -86,7 +86,10 @@ export default function NavBar({token, logout}) {
                 onClose={handleLeftClose}
               >
                 <MenuItem> <NavLink to="/">Home</NavLink></MenuItem>
-                {token==''?null:<MenuItem><NavLink to="/billerInfo">BillerInfo</NavLink></MenuItem>}
+                {token==''||admin=="yes"?null:<MenuItem><NavLink to="/billerInfo">BillerInfo</NavLink></MenuItem>}
+                {token==''||admin=="yes"?null:<MenuItem><NavLink to="/voucher">VoucherBooking</NavLink></MenuItem>}
+                {admin=="yes"?<MenuItem><NavLink to="/ViewUser">View User</NavLink></MenuItem>:null}
+                {admin=="yes"?<MenuItem><NavLink to="/ViewVoucher">View Voucher</NavLink></MenuItem>:null}
                 {token!==''?null:<MenuItem> <NavLink to="/login">Login</NavLink></MenuItem>}
                 {token!==''?null:<MenuItem> <NavLink to="/signup">Sign Up</NavLink></MenuItem>}
               </Menu>

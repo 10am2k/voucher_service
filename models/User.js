@@ -23,6 +23,15 @@ const userSchema = new Schema(
         billerFirstName: { type: String, required: false },
         billerLastName: { type: String, required: false },
         billerEmail: { type: String, required: false },
+        isAdmin: {type:Boolean, required: false},
+        voucher: {type:Array, required:false,
+                    value:{ type:{type: String,required:false},
+                            delivery:{type: String,required:false},
+                            date:{type:Date, requried:false },
+                            comment:{type:String, required:false},
+                            status:{type:String, required:false}
+
+                    }}
     }
 );
 

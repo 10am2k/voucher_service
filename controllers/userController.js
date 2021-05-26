@@ -95,6 +95,67 @@ const login = (req, res) => {
 
 }
 
+const adminlogin = (req, res) => {
+
+    //check that email and password are present
+    if (!req.body.email || !req.body.password) {
+        res.status(400);
+        res.send("Login failed, missing email or password");
+        return;
+    }
+
+    //callback on validate password, this function gets called after comparing passwords
+    const validatePassword = (err, valid) => {
+        if (err) {
+            res.status(500);
+            res.send("Login failed, something went wrong");
+        }
+        // login successful
+        if (valid && user.isAdmin) {
+            const payload = {
+                id: user._id,
+            };
+
+            console.log("Login successful");
+            res.status(200);
+
+            // generate and send an authorization token
+            res.send({ token: generateToken(payload) })
+        }
+        // login failed
+        else {
+            console.log("Login failed, wrong password");
+
+            res.status(400);
+            res.send("Login failed - wrong password");
+        }
+
+    };
+
+    // callback function to validate account after finding a user from the database
+    const validateAccount = (err, docs) => {
+        console.log(docs);
+        if (docs.length === 0) {
+            res.status(400);
+            res.send("Login failed, no account exists with that email");
+            return;
+        }
+        if (err) {
+            console.log("Login failed, something went wrong");
+            res.send("Login failed, something went wrong");
+            return;
+        }
+
+        user = docs[0];
+        bcrypt.compare(req.body.password, user.password, validatePassword);
+
+    };
+
+    userModel.find({ email: req.body.email }, validateAccount);
+
+
+}
+
 
 //adding and/or updating biller information
 const updateBillerInfo = (req, res) => {
@@ -220,6 +281,114 @@ const addUser = (req, res) => {
 
     });
 }
+const getall=(req,res)=>{
+    
+    userModel.find()
+    .lean()
+    .then((doc) => {
+
+        console.log(doc)
+        res.status(200);
+        res.send(doc);
+
+    })
+            
+       
+
+}
+const addvoucher =(req,res) =>{
+    if (
+        !req.body.type ||
+        !req.body.delivery ||
+        !req.body.date 
+
+    ) {
+        res.status(400);
+        res.send("Failed to add voucher, missing fields");
+        console.log("wah");
+        return;
+    }
+    const voucher = {voucher:{
+        type: req.body.type,
+        delivery: req.body.delivery,
+        date: req.body.date,
+        message:req.body.message,
+        status:"open"
+    }
+}
+    console.log("id=", req.body);
+    const id = req.body.id;
+
+    userModel.findById(id).lean().then((user) => {
+
+        if (!user) {
+            console.log("Update biller info failed, can't find user");
+            res.send("failed to find user");
+        }
+        else {
+            userModel.updateOne({ _id: id },voucher, (err, result) => {
+                if (err) {
+                    console.log("User was not updated successfully");
+                    console.error(err);
+                }
+                else {
+                    if (result.n === 1) {
+                        console.log("User was updated successfully");
+                        res.send("User updated successfully");
+                    } else {
+                        console.log("User was not updated successfully: Cannot find user");
+                        res.send("Cannot Find User");
+                    }
+                }
+            })
+
+        }
+
+    })
+}
+
+const updatevoucher =(req,res) =>{
+    
+    
+
+    console.log("id=", req.body);
+    const id = req.body.id;
+
+    userModel.findById(id).lean().then((user) => {
+
+        if (!user) {
+            console.log("Update biller info failed, can't find user");
+            res.send("failed to find user");
+            
+        }
+        else {
+            const voucher = {voucher:{
+                type: user.voucher.type,
+                delivery: user.voucher.delivery,
+                date: user.voucher.date,
+                message:user.voucher.message,
+                status:"close"
+            }}
+            userModel.updateOne({ _id: id },voucher, (err, result) => {
+                if (err) {
+                    console.log("User was not updated successfully");
+                    console.error(err);
+                }
+                else {
+                    if (result.n === 1) {
+                        console.log("User was updated successfully");
+                        res.send("User updated successfully");
+                    } else {
+                        console.log("User was not updated successfully: Cannot find user");
+                        res.send("Cannot Find User");
+                    }
+                }
+            })
+
+        }
+
+    })
+}
 
 const editUser = (req, res) => {
     
@@ -336,3 +505,7 @@ module.exports.login = login;
 module.exports.addUser = addUser;
 module.exports.updateBillerInfo = updateBillerInfo;
 module.exports.editUser = editUser;
+module.exports.adminlogin = adminlogin;
+module.exports.addvoucher=addvoucher;
+module.exports.getall=getall;
+module.exports.updatevoucher=updatevoucher;

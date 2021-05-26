@@ -12,7 +12,21 @@ router.post('/login', (req, res) => {
     userController.login(req, res);
 });
 
+router.post('/adminlogin', (req, res) => {
+    userController.adminlogin(req, res);
+});
 
+router.post('/addvoucher', (req, res) => {
+    userController.addvoucher(req, res);
+});
+
+router.post('/updatevoucher', (req, res) => {
+    userController.updatevoucher(req, res);
+});
+
+router.post('/getall', (req, res) => {
+    userController.getall(req, res);
+});
 //get a user's information using their provided authentication token
 router.get('/get', authenticateToken, (req, res) => {
     userController.getUser(req, res);

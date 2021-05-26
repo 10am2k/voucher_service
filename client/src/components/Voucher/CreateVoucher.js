@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect, withRouter } from 'react-router-dom';
+import {NavLink, Redirect, withRouter} from 'react-router-dom';
 
 import Axios from 'axios';
 import PropTypes from 'prop-types'
@@ -10,7 +10,6 @@ import EditIcon from "@material-ui/icons/EditOutlined";
 import DoneIcon from "@material-ui/icons/DoneAllTwoTone";
 import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
 import Alert from "../Alert/Alert";
-
 
 import {
     Card,
@@ -27,6 +26,15 @@ import {
     Input,
     IconButton
 } from '@material-ui/core'
+import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
+import {
+    MuiPickersUtilsProvider,
+    KeyboardTimePicker,
+    KeyboardDatePicker,
+} from '@material-ui/pickers';
 
 //Below is from William
 //To do: William only finished UI part
@@ -53,13 +61,13 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const createData = (name, lastName, email, password, phone) => ({
+const createData = (type, delivery, date, message, status) => ({
     // id: name.replace(" ", "_"),
-    name,
-    lastName,
-    email,
-    password,
-    phone,
+    type,
+    delivery,
+    date,
+    message,
+    status,
     isEditMode: false
 });
 
@@ -84,28 +92,30 @@ const CustomTableCell = ({ row, name, onChange }) => {
 
 
 
-function VoucherfoForm({ token, user ,logout,history}) {
+function VoucherForm({ token, user ,logout,history}) {
 
 
 
     const [rows, setRows] = React.useState(() => {
 
-        var email = ""
-        var firstName = ""
-        var lastName = ""
-        if (user.billerEmail !== "") {
-            email = user.billerEmail;
-        }
-        if (user.firstName !== "") {
-            firstName = user.billerFirstName
-        }
-        if (user.lastName !== "") {
-            lastName = user.billerLastName
-        }
+        var type = ""
+        var delivery = ""
+        var date= ""
+        var message= ""
+        var status=""
+        if(user.voucher){
+        for(var voucher of user.voucher){
+            type=voucher.type;
+            delivery=voucher.delivery;
+            date=voucher.date;
+            message=voucher.message;
+            status=voucher.status;
+            console.log(voucher.type)
+            
+        }}
 
 
-
-        return [createData(firstName, lastName, email)]
+        return [createData(type, delivery, date,message,status)]
 
 
     });
@@ -127,19 +137,23 @@ function VoucherfoForm({ token, user ,logout,history}) {
     useEffect(() => {
 
 
-        var email = ""
-        var firstName = ""
-        var lastName = ""
-        if (user.billerEmail !== "") {
-            email = user.billerEmail;
+        var type = ""
+        var delivery = ""
+        var date= ""
+        var comment= ""
+        var status=""
+        if(user.voucher){
+        for(var voucher of user.voucher){
+            type=voucher.type;
+            delivery=voucher.delivery;
+            date=voucher.date;
+            comment=voucher.comment;
+            status=voucher.status;
+            console.log(voucher.type)
+            setRows([createData(type, delivery, date,comment,status)])
         }
-        if (user.firstName !== "") {
-            firstName = user.billerFirstName
-        }
-        if (user.lastName !== "") {
-            lastName = user.billerLastName
-        }
-        setRows([createData(firstName, lastName, email)])
+
+    }
 
     }, [user.firstName]);
 
@@ -151,16 +165,6 @@ function VoucherfoForm({ token, user ,logout,history}) {
         const id = user._id;
         const payload = { id, billerFirstName, billerLastName, billerEmail };
         console.log("payload:", payload);
-        Axios.post('api/user/updateBillerInfo', payload)
-            .then((res)=> {
-                setStatusBase({ msg: "Update biller info successfully!", key: Math.random() });
-                setTimeout(()=>{history.push('/')}, 1500);
-                console.error(res);
-            })
-            .catch((err) => {
-                setStatusBase({ msg: "Update biller info failed", key: Math.random() });
-                console.error(err);
-            })
         setRows([createData(billerFirstName, billerLastName, billerEmail)])
         window.location.reload();
     }
@@ -205,6 +209,16 @@ function VoucherfoForm({ token, user ,logout,history}) {
             return row;
         });
         setRows(newRows);
+        console.log("???")
+        Axios.post('api/user/updatevoucher', {id:user._id})
+            .then((res) => {
+                setStatusBase({ msg: "Update biller info successfully!", key: Math.random() });
+                setTimeout(()=>{history.push('/')}, 1500);
+            })
+            .catch((err) => {
+               
+                console.error(err);
+            })
         setPrevious(state => {
             delete state[id];
             return state;
@@ -213,22 +227,146 @@ function VoucherfoForm({ token, user ,logout,history}) {
     };
     // Above is from William
 
+    const [selectedDate, setSelectedDate] = React.useState(new Date('2021-05-20T21:11:54'));
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+    };
+    console.log(selectedDate);
+
+
+
+    const [type, setType] = useState('');
+    const [delivery, setDelivery] = useState('');
+    const [comment, setComment] = useState('');
+
+    const ontypeChange = (e) => {
+        setType(e.target.value);
+    }
+
+    const onDeliveryChange = (e) => {
+        setDelivery(e.target.value);
+    }
+
+
+    const onCommentChange = (e) => {
+        setComment(e.target.value);
+    }
+
+    const handleClick = () => {
+        Axios.post('api/user/addvoucher', {id:user._id, type: type, delivery: delivery, date: selectedDate, comment: comment })
+            .then((response) => {
+                setStatusBase({ msg: "Adding voucher successfully", key: Math.random() });
+                setTimeout(()=>{history.push('/')}, 1000);
+                console.log(response);
+            })
+            .catch((error) =>{
+              setStatusBase({ msg: "Adding voucher failed!", key: Math.random() });
+                console.log(error);
+            })
+    }
+
+
     return (
         <div>
             <NavBar token={token} logout={logout}/>
             <Card>
                 <CardContent>
                     <Typography variant="h6">
-                        Update Biller Information
+                        Create Voucher Booking
                     </Typography>
+                    <form className={classes.form} noValidate>
+                        <Grid container spacing={2}>
+                            <h3>Voucher Service Type:</h3>
+                            <Grid item xs={12} >
+                                <TextField
+                                    // autoComplete="fname"
+                                    name="type"
+                                    variant="outlined"
+                                    required
+                                    fullWidth
+                                    id="type"
+                                    label="type"
+                                    // autoFocus
+                                    onChange={ontypeChange}
+                                />
+                            </Grid>
+                            <h3>Pick UP Way:</h3>
+                            <Grid item xs={12} >
+                                <TextField
+                                    variant="outlined"
+                                    required
+                                    fullWidth
+                                    id="delivery"
+                                    label="delivery"
+                                    name="delivery"
+                                    // autoComplete="lname"
+                                    onChange={onDeliveryChange}
+                                />
+                            </Grid>
+                            <h3>Date and Time:</h3>
+
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <Grid container justify="space-around">
+                                <KeyboardDatePicker
+                                    margin="normal"
+                                    id="date-picker-dialog"
+                                    label="Date picker dialog"
+                                    format="MM/dd/yyyy"
+                                    value={selectedDate}
+                                    onChange={handleDateChange}
+                                    KeyboardButtonProps={{
+                                        'aria-label': 'change date',
+                                    }}
+                                />
+                                <KeyboardTimePicker
+                                    margin="normal"
+                                    id="time-picker"
+                                    label="Time picker"
+                                    value={selectedDate}
+                                    onChange={handleDateChange}
+                                    KeyboardButtonProps={{
+                                        'aria-label': 'change time',
+                                    }}
+                                />
+                            </Grid>
+                            </MuiPickersUtilsProvider>
+                            <Grid item xs={12}>
+                            <h3>optional message:</h3>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    variant="outlined"
+                                    // required
+                                    fullWidth
+                                    name="message"
+                                    label="message"
+                                    id="message"
+                                    onChange={onCommentChange}
+                                />
+                            </Grid>
+
+                        </Grid>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+
+                            onClick={handleClick}
+                        >
+                            ADD
+                        </Button>
+                    </form>
 
                     <Table className={classes.table} aria-label="caption table">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left" />
-                                <TableCell align="left">First Name</TableCell>
-                                <TableCell align="left">Last Name</TableCell>
-                                <TableCell align="left">Email</TableCell>
+                                <TableCell align="left">Type</TableCell>
+                                <TableCell align="left">Delivery</TableCell>
+                                <TableCell align="left">Date</TableCell>
+                                <TableCell align="left">comment</TableCell>
+                                <TableCell align="left">Status</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -259,9 +397,11 @@ function VoucherfoForm({ token, user ,logout,history}) {
                                             </IconButton>
                                         )}
                                     </TableCell>
-                                    <CustomTableCell {...{ row, name: "name", onChange }} />
-                                    <CustomTableCell {...{ row, name: "lastName", onChange }} />
-                                    <CustomTableCell {...{ row, name: "email", onChange }} />
+                                    <CustomTableCell {...{ row, name: "type", onChange }} />
+                                    <CustomTableCell {...{ row, name: "delivery", onChange }} />
+                                    <CustomTableCell {...{ row, name: "date", onChange }} />
+                                    <CustomTableCell {...{ row, name: "comment", onChange }} />
+                                    <CustomTableCell {...{ row, name: "status", onChange }} />
                                     <div>
                                         {row.isEditMode ?
                                             <Button
@@ -295,4 +435,4 @@ function VoucherfoForm({ token, user ,logout,history}) {
 
 }
 
-export default withRouter(BillerInfoForm);
+export default withRouter(VoucherForm);
