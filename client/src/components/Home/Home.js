@@ -3,7 +3,7 @@ import { Redirect, withRouter } from 'react-router-dom';
 import NavBar from "./Navbar";
 
 
-function Home({token, logout,alertstatus}) {
+function Home({token, logout}) {
 
 
     return (

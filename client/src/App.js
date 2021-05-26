@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import './App.css';
 import { Grid } from '@material-ui/core'
 import Axios from 'axios';
@@ -25,6 +25,11 @@ class App extends Component{
   storeToken = (newtoken) => {
     localStorage.setItem('token', newtoken);
     this.setState({token:newtoken});
+  }
+
+  storeUser = (newuser) => {
+    localStorage.setItem('user', newuser);
+    this.setState({user:newuser});
   }
 
 
@@ -78,36 +83,37 @@ class App extends Component{
 
   }
 
+
   render() {
-  
-  
 
 
   return (
 
-    <Router>
+    <Router history={this.props.history} forceRefresh={true}>
+      <Switch>
 
       <Route exact path="/">
         <Home token={this.state.token} logout={this.logout} />
       </Route>
-      <Route path="/login">
-        <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} history={this.props.history} ></LoginForm>
+      <Route exact path="/login">
+        <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout}  ></LoginForm>
       </Route>
 
-      <Route path="/signup"><CreateAccount storeToken={this.storeToken} token={this.state.token} logout={this.logout} history={this.props.history}></CreateAccount></Route>
+      <Route exact path="/signup" ><CreateAccount storeToken={this.storeToken} token={this.state.token} logout={this.logout} ></CreateAccount></Route>
 
-      <Route path="/billerInfo">
+      <Route exact path="/billerInfo">
 
-        {this.state.token !== "" ? <BillerInfoForm user={this.state.user} token={this.state.token} logout={this.logout} history={this.props.history}></BillerInfoForm> :
-          <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} history={this.props.history}></LoginForm>}
+        {this.state.token !== "" ? <BillerInfoForm user={this.state.user} token={this.state.token} logout={this.logout} ></BillerInfoForm> :
+          <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} ></LoginForm>}
 
       </Route>
 
-      <Route path="/personalInfo">
+      <Route exact path="/personalInfo">
 
-        {this.state.token !== "" ? <PersonalInfoForm user={this.state.user} token={this.state.token} storeToken={this.storeToken} logout={this.logout} history={this.props.history}></PersonalInfoForm> :
-          <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} history={this.props.history}></LoginForm>}
+        {this.state.token !== "" ? <PersonalInfoForm user={this.state.user} token={this.state.token} storeToken={this.storeToken} logout={this.logout} storeuser={this.storeUser}></PersonalInfoForm> :
+          <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} ></LoginForm>}
       </Route>
+      </Switch>
 
     </Router>
   )

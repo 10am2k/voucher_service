@@ -20,7 +20,7 @@ import Alert from "../Alert/Alert";
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
+      {'Copyright © Group12'}
       <Link color="inherit" href="https://material-ui.com/">
         Your Website
       </Link>{' '}
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-function PersonalInfoForm({ token, user, storeToken ,logout,history}) {
+function PersonalInfoForm({ token, user, storeToken ,logout,history,storeuser}) {
 
   const [oldpassword, setoldPassword] = useState();
   const [newpassword, setnewPassword] = useState('');
@@ -88,7 +88,7 @@ function PersonalInfoForm({ token, user, storeToken ,logout,history}) {
     axios.post('api/user/edituser', { email: user.email, oldpassword: oldpassword, newpassword: newpassword, firstName: fname, lastName: lname, phoneNumber: phone })
       .then((res) => {
         setStatusBase({ msg: "Personal information edited successful!", key: Math.random() });
-        storeToken.call(this, res.data.token);
+        storeuser({email: user.email, password: newpassword, firstName: fname, lastName: lname, phoneNumber: phone });
         setTimeout(()=>{history.push('/')}, 1000);
       }
       )

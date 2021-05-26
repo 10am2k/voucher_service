@@ -86,7 +86,7 @@ export default function NavBar({token, logout}) {
                 onClose={handleLeftClose}
               >
                 <MenuItem> <NavLink to="/">Home</NavLink></MenuItem>
-                <MenuItem> <NavLink to="/billerInfo">BillerInfo</NavLink></MenuItem>
+                {token==''?null:<MenuItem><NavLink to="/billerInfo">BillerInfo</NavLink></MenuItem>}
                 {token!==''?null:<MenuItem> <NavLink to="/login">Login</NavLink></MenuItem>}
                 {token!==''?null:<MenuItem> <NavLink to="/signup">Sign Up</NavLink></MenuItem>}
               </Menu>

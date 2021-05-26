@@ -3,7 +3,7 @@ const c = require("config");
 const emailValidator = require("email-validator");
 const { response } = require("express");
 const mongoose = require("mongoose");
-
+const { passwordStrength } = require('check-password-strength');
 const userModel = mongoose.model("users");
 
 const { generateToken, authenticateToken } = require("../utils/jwtTokens");
@@ -114,6 +114,12 @@ const updateBillerInfo = (req, res) => {
         billerLastName: req.body.billerLastName,
         billerEmail: req.body.billerEmail
     }
+    if(!validator.validate(req.body.billerEmail))
+    {
+        res.status(400);
+        res.send("Failed to add biller info, invalid email");
+        return;
+    }
     console.log("id=", req.body);
     const id = req.body.id;
 
@@ -166,9 +172,10 @@ const addUser = (req, res) => {
     }
 
     //check that password is long enough
-    if (req.body.password.length < 8) {
+    if (passwordStrength(req.body.password).value!="Strong") {
         res.status(400);
         res.send("password too short");
+        console.log("password too week");
         return;
     }
 
@@ -253,9 +260,10 @@ const editUser = (req, res) => {
             }
         
             //check that password is long enough
-            if (req.body.newpassword.length < 8) {
+            if (passwordStrength(req.body.password).value!="Strong") {
                 res.status(400);
                 res.send("password too short");
+                console.log("password too week");
                 return;
             }
         

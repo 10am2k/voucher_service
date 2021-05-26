@@ -82,9 +82,8 @@ function CreateAccount({ storeToken ,token,logout,history}) {
     const handleClick = () => {
         axios.post('api/user/signup', { email: email, password: password, firstName: fname, lastName: lname, phoneNumber: phone })
             .then((response) => {
-                storeToken(response.data.token);
-                setStatusBase({ msg: "Signup successful!", key: Math.random() });
-                setTimeout(()=>{history.push('/')}, 1000);
+                setStatusBase({ msg: "Signup successful!\n You need to login with your new account", key: Math.random() });
+                setTimeout(()=>{history.push('/login')}, 1000);
                 console.log(response);
             })
             .catch((error) =>{
