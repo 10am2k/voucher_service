@@ -176,12 +176,7 @@ const updateBillerInfo = (req, res) => {
         billerLastName: req.body.billerLastName,
         billerEmail: req.body.billerEmail
     }
-    if(!validator.validate(req.body.billerEmail))
-    {
-        res.status(400);
-        res.send("Failed to add biller info, invalid email");
-        return;
-    }
+    
     console.log("id=", req.body);
     const id = req.body.id;
 
