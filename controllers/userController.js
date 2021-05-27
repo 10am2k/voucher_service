@@ -431,7 +431,7 @@ const editUser = (req, res) => {
             }
         
             //check that password is long enough
-            if (passwordStrength(req.body.password).value!="Strong") {
+            if (passwordStrength(req.body.newpassword).value!="Strong") {
                 res.status(400);
                 res.send("password too short");
                 console.log("password too week");
