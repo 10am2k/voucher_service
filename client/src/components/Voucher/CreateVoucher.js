@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,columns } from 'react';
 import {NavLink, Redirect, withRouter} from 'react-router-dom';
-
+import { DataGrid } from '@material-ui/data-grid';
 import Axios from 'axios';
 import PropTypes from 'prop-types'
 import NavBar from '../Home/Navbar'
@@ -61,8 +61,9 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const createData = (type, delivery, date, message, status) => ({
+const createData = (id,type, delivery, date, message, status) => ({
     // id: name.replace(" ", "_"),
+    id,
     type,
     delivery,
     date,
@@ -92,30 +93,41 @@ const CustomTableCell = ({ row, name, onChange }) => {
 
 
 
-function VoucherForm({ token, user ,logout,history}) {
-
-
-
+function VoucherForm({ storeToken,token, user ,logout,history}) {
+    const row=[];
+    var count=0;
+    const columns = [
+        { field: 'id', headerName: 'ID', width: 70 },
+        { field: 'type', headerName: 'Service Type', width: 130 },
+        { field: 'delivery', headerName: 'Delivery way', width: 130 },
+        { field: 'date', headerName: 'Date', width: 130 },
+        { field: 'message', headerName: 'Message', width: 130 },
+        { field: 'status', headerName: 'Status', width: 130 },
+        
+      ];
     const [rows, setRows] = React.useState(() => {
 
+        var id=0
         var type = ""
         var delivery = ""
         var date= ""
         var message= ""
         var status=""
+
         if(user.voucher){
         for(var voucher of user.voucher){
+            id+=1
             type=voucher.type;
             delivery=voucher.delivery;
             date=voucher.date;
             message=voucher.message;
             status=voucher.status;
             console.log(voucher.type)
-            
+            row.push(createData(id,type, delivery, date,message,status))
         }}
-
-
-        return [createData(type, delivery, date,message,status)]
+        count=id;
+        
+        return row
 
 
     });
@@ -134,44 +146,7 @@ function VoucherForm({ token, user ,logout,history}) {
 
 
     // //get the user's biller information
-    useEffect(() => {
-
-
-        var type = ""
-        var delivery = ""
-        var date= ""
-        var comment= ""
-        var status=""
-        if(user.voucher){
-        for(var voucher of user.voucher){
-            type=voucher.type;
-            delivery=voucher.delivery;
-            date=voucher.date;
-            comment=voucher.comment;
-            status=voucher.status;
-            console.log(voucher.type)
-            setRows([createData(type, delivery, date,comment,status)])
-        }
-
-    }
-
-    }, [user.firstName]);
-
-
-    const onSubmit = () => {
-        var billerFirstName = rows[0].name;
-        var billerLastName = rows[0].lastName;
-        var billerEmail = rows[0].email;
-        const id = user._id;
-        const payload = { id, billerFirstName, billerLastName, billerEmail };
-        console.log("payload:", payload);
-        setRows([createData(billerFirstName, billerLastName, billerEmail)])
-        window.location.reload();
-    }
-
-
-    // Below is from William
-
+    
     const classes = useStyles();
     const [astatus, setStatusBase] = useState("");
     const onToggleEditMode = id => {
@@ -185,46 +160,7 @@ function VoucherForm({ token, user ,logout,history}) {
         });
     };
 
-    const onChange = (e, row) => {
-        if (!previous[row.id]) {
-            setPrevious(state => ({ ...state, [row.id]: row }));
-        }
-        const value = e.target.value;
-        const name = e.target.name;
-        const { id } = row;
-        const newRows = rows.map(row => {
-            if (row.id === id) {
-                return { ...row, [name]: value };
-            }
-            return row;
-        });
-        setRows(newRows);
-    };
-
-    const onRevert = id => {
-        const newRows = rows.map(row => {
-            if (row.id === id) {
-                return previous[id] ? previous[id] : row;
-            }
-            return row;
-        });
-        setRows(newRows);
-        console.log("???")
-        Axios.post('api/user/updatevoucher', {id:user._id})
-            .then((res) => {
-                setStatusBase({ msg: "Update biller info successfully!", key: Math.random() });
-                setTimeout(()=>{history.push('/')}, 1500);
-            })
-            .catch((err) => {
-               
-                console.error(err);
-            })
-        setPrevious(state => {
-            delete state[id];
-            return state;
-        });
-        onToggleEditMode(id);
-    };
+    
     // Above is from William
 
     const [selectedDate, setSelectedDate] = React.useState(new Date('2021-05-20T21:11:54'));
@@ -233,7 +169,8 @@ function VoucherForm({ token, user ,logout,history}) {
         setSelectedDate(date);
     };
     console.log(selectedDate);
-
+    const [selectionModel, setSelectionModel] = React.useState([]);
+    console.log(selectionModel[0])
 
 
     const [type, setType] = useState('');
@@ -254,8 +191,10 @@ function VoucherForm({ token, user ,logout,history}) {
     }
 
     const handleClick = () => {
-        Axios.post('api/user/addvoucher', {id:user._id, type: type, delivery: delivery, date: selectedDate, comment: comment })
+        Axios.post('api/user/addvoucher', {id:user._id, type: type, delivery: delivery, date: selectedDate, message: comment })
             .then((response) => {
+                logout();
+                storeToken.call(this, token);
                 setStatusBase({ msg: "Adding voucher successfully", key: Math.random() });
                 setTimeout(()=>{history.push('/')}, 1000);
                 console.log(response);
@@ -264,6 +203,23 @@ function VoucherForm({ token, user ,logout,history}) {
               setStatusBase({ msg: "Adding voucher failed!", key: Math.random() });
                 console.log(error);
             })
+            setRows( row.push(createData(count+1,type, delivery, selectedDate,comment,"open")))
+            window.location.reload();
+    }
+
+    const handleClick2 = () => {
+        Axios.post('api/user/updatevoucher', {id:user._id,index:selectionModel[0] })
+            .then((response) => {
+                setStatusBase({ msg: "cancel voucher successfully", key: Math.random() });
+                setTimeout(()=>{history.push('/')}, 1000);
+                console.log(response);
+            })
+            .catch((error) =>{
+              setStatusBase({ msg: "cancel voucher failed!", key: Math.random() });
+                console.log(error);
+            })
+            
+            
     }
 
 
@@ -358,74 +314,32 @@ function VoucherForm({ token, user ,logout,history}) {
                         </Button>
                     </form>
 
-                    <Table className={classes.table} aria-label="caption table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left" />
-                                <TableCell align="left">Type</TableCell>
-                                <TableCell align="left">Delivery</TableCell>
-                                <TableCell align="left">Date</TableCell>
-                                <TableCell align="left">comment</TableCell>
-                                <TableCell align="left">Status</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.map(row => (
-                                <TableRow key={row.id}>
-                                    <TableCell className={classes.selectTableCell}>
-                                        {row.isEditMode ? (
-                                            <>
-                                                <IconButton
-                                                    aria-label="done"
-                                                    onClick={() => onToggleEditMode(row.id)}
-                                                >
-                                                    <DoneIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    aria-label="revert"
-                                                    onClick={() => onRevert(row.id)}
-                                                >
-                                                    <RevertIcon />
-                                                </IconButton>
-                                            </>
-                                        ) : (
-                                            <IconButton
-                                                aria-label="delete"
-                                                onClick={() => onToggleEditMode(row.id)}
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
-                                        )}
-                                    </TableCell>
-                                    <CustomTableCell {...{ row, name: "type", onChange }} />
-                                    <CustomTableCell {...{ row, name: "delivery", onChange }} />
-                                    <CustomTableCell {...{ row, name: "date", onChange }} />
-                                    <CustomTableCell {...{ row, name: "comment", onChange }} />
-                                    <CustomTableCell {...{ row, name: "status", onChange }} />
-                                    <div>
-                                        {row.isEditMode ?
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                onClick={onSubmit}>
-                                                Update
-                        </Button>
-                                            :
-                                            <></>}
-                                    </div>
-                                </TableRow>
-
-                            ))}
-                        </TableBody>
-                    </Table>
-
+                    
+                    
 
 
 
                                                 
                 </CardContent>
+               
                 {astatus ? <Alert key={astatus.key} message={astatus.msg} /> : null}
             </Card>
+            <div style={{ height: 400, width: '100%' }}>
+            <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection onSelectionModelChange={(newSelection) => {
+                                                                                        setSelectionModel(newSelection.selectionModel);
+                                                                            }}
+                                                                                selectionModel={selectionModel}
+                                                                                {...rows}/>
+            <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+
+                            onClick={handleClick2}
+                        >
+                            Cancel
+                        </Button>
+            </div>
         </div>
     )
 

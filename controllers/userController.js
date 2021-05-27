@@ -7,6 +7,7 @@ const { passwordStrength } = require('check-password-strength');
 const userModel = mongoose.model("users");
 
 const { generateToken, authenticateToken } = require("../utils/jwtTokens");
+const { string } = require("prop-types");
 
 
 const getUser = (req, res) => {
@@ -308,14 +309,14 @@ const addvoucher =(req,res) =>{
         console.log("wah");
         return;
     }
-    const voucher = {voucher:{
+    const voucher = {
         type: req.body.type,
         delivery: req.body.delivery,
         date: req.body.date,
         message:req.body.message,
         status:"open"
     }
-}
+    
     console.log("id=", req.body);
     const id = req.body.id;
 
@@ -326,7 +327,7 @@ const addvoucher =(req,res) =>{
             res.send("failed to find user");
         }
         else {
-            userModel.updateOne({ _id: id },voucher, (err, result) => {
+            userModel.updateOne({ _id: id },{$push:{"voucher":voucher}}, (err, result) => {
                 if (err) {
                     console.log("User was not updated successfully");
                     console.error(err);
@@ -362,14 +363,15 @@ const updatevoucher =(req,res) =>{
             
         }
         else {
-            const voucher = {voucher:{
-                type: user.voucher.type,
-                delivery: user.voucher.delivery,
-                date: user.voucher.date,
-                message:user.voucher.message,
+            console.log(user.voucher[req.body.index-1])
+            const voucher = {
+                type: user.voucher[req.body.index-1].type,
+                delivery: user.voucher[req.body.index-1].delivery,
+                date: user.voucher[req.body.index-1].date,
+                message:user.voucher[req.body.index-1].message,
                 status:"close"
-            }}
-            userModel.updateOne({ _id: id },voucher, (err, result) => {
+            }
+            userModel.updateOne({ _id: id },{$set:{"voucher.0":voucher}}, (err, result) => {
                 if (err) {
                     console.log("User was not updated successfully");
                     console.error(err);

@@ -134,7 +134,7 @@ class App extends Component {
 
                     <Route exact path="/voucher">
 
-                        {this.state.token !== "" ? <VoucherForm user={this.state.user} token={this.state.token} storeToken={this.storeToken} logout={this.logout} storeuser={this.storeUser}></VoucherForm> :
+                        {this.state.token !== "" ? <VoucherForm storeToken={this.storeToken} user={this.state.user} token={this.state.token} storeToken={this.storeToken} logout={this.logout} storeuser={this.storeUser}></VoucherForm> :
                             <LoginForm storeToken={this.storeToken} token={this.state.token} logout={this.logout} ></LoginForm>}
                     </Route>
                     
