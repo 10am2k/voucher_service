@@ -15,8 +15,8 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(useremail,name, calories, fat, carbs,xx) {
-  return { useremail,name, calories, fat, carbs,xx};
+function createData(useremail,user,name, calories, fat, carbs,xx) {
+  return { useremail,user,name, calories, fat, carbs,xx};
 }
 
 const rows = [
@@ -31,7 +31,7 @@ export default function ViewVoucher({admin,token,logout}) {
             {
               if(user.voucher){
                for(var voucher of user.voucher){
-              rows.push(createData(user.email,voucher.type, voucher.delivery,voucher.date,voucher.message,voucher.status))
+              rows.push(createData(user.email,user.firstName,voucher.type, voucher.delivery,voucher.date,voucher.message,voucher.status))
               setrows(rows);
               console.log(voucher);
               }
@@ -53,6 +53,7 @@ export default function ViewVoucher({admin,token,logout}) {
         <TableHead>
           <TableRow>
             <TableCell>Voucher Type</TableCell>
+            <TableCell align="right">User Name</TableCell>
             <TableCell align="right">User Email</TableCell>
             <TableCell align="right">Delivery Type</TableCell>
             <TableCell align="right">Date</TableCell>
@@ -66,6 +67,7 @@ export default function ViewVoucher({admin,token,logout}) {
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
+              <TableCell align="right">{row.user}</TableCell>
               <TableCell align="right">{row.useremail}</TableCell>
               <TableCell align="right">{row.calories}</TableCell>
               <TableCell align="right">{row.fat}</TableCell>
